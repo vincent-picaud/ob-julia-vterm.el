@@ -358,17 +358,27 @@ With non-nil USE-LET, the code will be executed in a `let' block"
 ;; A helper minor mode for Org buffer with julia-vterm source code blocks.
 
 (defun ob-julia-vterm-session-context ()
-  "Return contextual information for determining which REPL to interact with.
-The returned alist has three keys, block-ses, fellow-ses, and file-ses."
   (let* ((raw (org-element-property :parameters (org-element-at-point)))
-	 (session-specified (string-match-p ":session" (or raw "")))
-	 (src-block-info (org-babel-get-src-block-info))
-	 (block-ses (and session-specified
+         (session-specified (string-match-p ":session" (or raw "")))
+         (src-block-info (org-babel-get-src-block-info))
+         (block-ses (and session-specified
                          (cdr (assoc :session (caddr src-block-info)))))
          (fellow-ses (and (buffer-live-p julia-vterm-fellow-repl-buffer)
                           (julia-vterm-repl-session-name julia-vterm-fellow-repl-buffer)))
-         (props (org-entry-get-with-inheritance "header-args:julia"))
-         (file-ses (cadr (member ":session" (split-string (or props ""))))))
+
+	 ;; See https://github.com/shg/ob-julia-vterm.el/issues/34
+         ;; modification begin
+         ;;
+         (lang (if (and (fboundp 'org-babel-execute:julia)                                       
+                        (eq (symbol-function 'org-babel-execute:julia)                       
+                            'org-babel-execute:julia-vterm))                                           
+                   "julia"                                                                                              
+                 "julia-vterm"))                                                                                   
+         (props (org-entry-get-with-inheritance (format "header-args:%s" lang)))  
+         ;;
+         ;; modification end
+
+         (file-ses (cadr (member ":session" (split-string (or props ""))))))    
     (list (cons 'block-ses block-ses)
           (cons 'fellow-ses fellow-ses)
           (cons 'file-ses file-ses))))
