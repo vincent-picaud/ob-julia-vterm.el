@@ -433,7 +433,7 @@ With prefix ARG, prompt for session name."
     (define-key map (kbd "C-c C-z") #'ob-julia-vterm-switch-to-repl-buffer)
     (define-key map (kbd "C-<return>") #'ob-julia-vterm-send-region-or-current-line)
     (define-key map (kbd "C-c C-b") #'org-babel-execute-buffer)
-    (define-key map (kbd "C-c C-i") nil t)
+    ;; (define-key map (kbd "C-c C-i") nil t)
     map))
 
 ;;;###autoload
